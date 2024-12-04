@@ -1,0 +1,122 @@
+﻿﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Список заявок</title>
+</head>
+<body>
+    <h2>Список заявок</h2>
+    <a href="create.html" id="createLink">Создание заявки</a>
+    <a href="orders.html">Список заявок</a>
+    <a href="update.html" id="updateLink">Обновление заявки</a>
+    <a href="stat.html" id="statLink">Статистика</a>
+    <div>
+        <input id="search" placeholder="Номер" />
+        <button onClick="GetFilter()">Найти</button>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Номер заявки</th>
+                <th>Дата добавления</th>
+                <th>Вид оргтехники</th>
+                <th>Модель</th>
+                <th>Описание проблемы</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Отчество</th>
+                <th>Номер телефона</th>
+                <th>Статус</th>
+                <th>Дата окончания</th>
+                <th>Мастер</th>
+                <th>Комментарий</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</body>
+<script>
+    if (!sessionStorage.getItem("token")) {
+        window.location.href = "auth.html";
+    }
+
+    const userRole = sessionStorage.getItem("role");
+
+    if (userRole === "master") {
+        document.getElementById("statLink").style.display = "none";
+    }
+    if (userRole === "manager") {
+        document.getElementById("statLink").style.display = "none";
+    }
+    if (userRole === "operator") {
+        document.getElementById("statLink").style.display = "none";
+    }
+
+    if (userRole === "client") {
+        document.getElementById("createLink").style.display = "none";
+        document.getElementById("updateLink").style.display = "none";
+        document.getElementById("statLink").style.display = "none";
+    }
+
+    const tbody = document.querySelector("tbody");
+
+    GetOrders();
+
+    setInterval(() => {
+        GetOrders();
+    }, 5000);
+
+    async function GetOrders(param = null) {
+        tbody.innerHTML = "";
+        const uri = param
+            ? `http://localhost:5024/orders?param=${param}`
+            : "http://localhost:5024/orders";
+
+        try {
+            const response = await fetch(uri);
+            const data = await response.json();
+
+
+            if (data.message) {
+                alert(data.message);
+                return;
+            }
+
+            data.repo.forEach(order => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${order.number}</td>
+                    <td>${order.startDate}</td>
+                    <td>${order.kind}</td>
+                    <td>${order.model}</td>
+                    <td>${order.problemDysc}</td>
+                    <td>${order.name}</td>
+                    <td>${order.surname}</td>
+                    <td>${order.lastname}</td>
+                    <td>${order.phone}</td>
+                    <td>${order.status}</td>
+                    <td>${order.endDate}</td>
+                    <td>${order.master}</td>
+                    <td>${order.comments}</td>
+                `;
+
+                tbody.append(tr);
+            });
+        } catch (error) {
+            alert("Не удалось загрузить заявки.");
+        }
+    }
+
+    function GetFilter() {
+        const param = document.getElementById("search").value;
+        GetOrders(param);
+    }
+</script>
+<style>
+    th, td {
+        border: 1px solid black;
+    }
+</style>
+</html>

@@ -1,0 +1,53 @@
+﻿﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Обновление заявки</title>
+</head>
+<body>
+    <h2>Обновление заявки</h2>
+    <a href="create.html">Создание заявки</a>
+    <a href="orders.html">Список заявок</a>
+    <a href="update.html">Обновление заявки</a>
+    <a href="stat.html" id="statLink">Статистика</a>
+    <iframe name="frame" style="display: none;"></iframe>
+    <form target="frame" action="http://localhost:5024/update" method="get" id="updateForm">
+        <input required placeholder="Номер" type="number" name="number" /><br />
+        <input placeholder="Описание проблемы" type="text" name="problemDysc" /><br />
+        <input placeholder="Мастер" type="text" name="master" id="masterField" /><br />
+        <input placeholder="Комментарий" type="text" name="comment" /><br />
+        <label for="status">Статус</label><br />
+        <select name="status">
+            <option></option>
+            <option>завершена</option>
+            <option>готова к выдаче</option>
+            <option>в процессе ремонта</option>
+            <option>ожидание запчастей</option>
+        </select><br />
+        <input type="submit" value="Обновление" />
+    </form>
+</body>
+<script>
+    if (!sessionStorage.getItem("token")) {
+        window.location.href = "auth.html";
+    }
+
+    const userRole = sessionStorage.getItem("role");
+
+    if (userRole === "client") {
+        alert("У вас нет доступа к обновлению заявок.");
+        window.location.href = "orders.html";
+    }
+
+    if (userRole === "master") {
+        document.getElementById("masterField").style.display = "none";
+    }
+
+    if (userRole !== "admin") {
+        document.getElementById("statLink").style.display = "none";
+    }
+
+</script>
+<style>
+</style>
+</html>
